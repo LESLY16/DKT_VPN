@@ -1,5 +1,15 @@
-if (-not $env:Qt6_DIR) { throw "Qt6_DIR is not set" }
-$qtRoot = (Resolve-Path (Join-Path $env:Qt6_DIR "..\..\..")) .Path
-$windeployqt = Join-Path $qtRoot "bin\windeployqt.exe"
-if (-not (Test-Path $windeployqt)) { throw "windeployqt.exe not found at: $windeployqt (Qt6_DIR=$env:Qt6_DIR)" }
-& $windeployqt "build\Release\DKT_VPN.exe" --release --no-translations
+- name: Deploy Qt (windeployqt)
+  shell: pwsh
+  run: |
+    $qtDir = Get-ChildItem -Path "$env:RUNNER_WORKSPACE" -Directory -Recurse `
+                 | Where-Object { $_.Name -eq "msvc2019_64" } `
+                 | Select-Object -First 1
+    if (-not $qtDir) {
+      throw "Could not find Qt msvc2019_64 installation directory."
+    }
+    $qtBin = Join-Path $qtDir.FullName "bin"
+    $windeployqt = Join-Path $qtBin "windeployqt.exe"
+    if (-not (Test-Path $windeployqt)) {
+      throw "Could not find windeployqt.exe at $windeployqt"
+    }
+    & "$windeployqt" "build\Release\DKT_VPN.exe" --release --no-translations
