@@ -1,111 +1,15 @@
-name: Build
-
-on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-
-permissions:
-  contents: read
-
-jobs:
-  # ── Linux ──────────────────────────────────────────────────────────────────
-  build-linux:
-    name: Build (Linux)
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install Qt 6
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.7.*'
-          modules: ''
-          cache: true
-
-      - name: Install WireGuard tools
-        run: sudo apt-get install -y wireguard-tools
-
-      - name: Configure
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build
-        run: cmake --build build --config Release --parallel
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: DKT_VPN-linux
-          path: build/DKT_VPN
-          if-no-files-found: error
-
-  # ── macOS ──────────────────────────────────────────────────────────────────
-  build-macos:
-    name: Build (macOS)
-    runs-on: macos-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install Qt 6
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.7.*'
-          modules: ''
-          cache: true
-
-      - name: Install WireGuard tools
-        run: brew install wireguard-tools
-
-      - name: Configure
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build
-        run: cmake --build build --config Release --parallel
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: DKT_VPN-macos
-          path: build/DKT_VPN.app
-          if-no-files-found: error
-
-  # ── Windows ────────────────────────────────────────────────────────────────
-  build-windows:
-    name: Build (Windows)
-    runs-on: windows-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install Qt 6
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.7.*'
-          arch: 'win64_msvc2019_64'
-          modules: ''
-          cache: true
-
-      - name: Configure (MSVC)
-        run: cmake -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build
-        run: cmake --build build --config Release --parallel
-
-      - name: Deploy Qt (windeployqt)
-        shell: pwsh
-        run: |
-          $qtBin = "$env:Qt6_DIR\bin"
-          & "$qtBin\windeployqt.exe" "build\Release\DKT_VPN.exe" --release --no-translations
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: DKT_VPN-windows
-          path: build/Release/
-          if-no-files-found: error
+- name: Deploy Qt (windeployqt)
+  shell: pwsh
+  run: |
+    $qtDir = Get-ChildItem -Path "$env:RUNNER_WORKSPACE" -Directory -Recurse `
+                 | Where-Object { $_.Name -eq "msvc2019_64" } `
+                 | Select-Object -First 1
+    if (-not $qtDir) {
+      throw "Could not find Qt msvc2019_64 installation directory."
+    }
+    $qtBin = Join-Path $qtDir.FullName "bin"
+    $windeployqt = Join-Path $qtBin "windeployqt.exe"
+    if (-not (Test-Path $windeployqt)) {
+      throw "Could not find windeployqt.exe at $windeployqt"
+    }
+    & "$windeployqt" "build\Release\DKT_VPN.exe" --release --no-translations
