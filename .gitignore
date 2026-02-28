@@ -1,0 +1,51 @@
+# Build directories
+build/
+Build/
+out/
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+
+# Qt generated files
+*.moc
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+
+# Compiled binaries
+*.exe
+*.app
+*.dmg
+*.deb
+*.rpm
+DKT_VPN
+
+# Object files
+*.o
+*.obj
+
+# Libraries
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+
+# IDE files
+.vscode/
+.idea/
+*.user
+*.pro.user*
+*.qbs.user*
+.DS_Store
+Thumbs.db
+
+# WireGuard config files (contain private keys — never commit real configs)
+configs/*.conf
+!configs/*.conf.template

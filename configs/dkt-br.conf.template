@@ -1,0 +1,29 @@
+# DKT VPN — WireGuard configuration template
+# Copy this file to dkt-CODE.conf and fill in your credentials.
+# NEVER commit your real .conf file — it contains your private key!
+
+[Interface]
+# Your WireGuard private key (generated with: wg genkey)
+PrivateKey = REPLACE_WITH_YOUR_PRIVATE_KEY
+
+# IP address assigned to your VPN client
+Address = 10.0.0.2/32
+
+# DNS server to use while connected
+DNS = 1.1.1.1, 1.0.0.1
+
+[Peer]
+# Server public key (provided by your VPN provider)
+PublicKey = REPLACE_WITH_SERVER_PUBLIC_KEY
+
+# Optional pre-shared key for extra security
+# PresharedKey = REPLACE_WITH_PRESHARED_KEY
+
+# Server endpoint (IP or hostname : port)
+Endpoint = REPLACE_WITH_SERVER_ENDPOINT:51820
+
+# Route all traffic through VPN
+AllowedIPs = 0.0.0.0/0, ::/0
+
+# Keep connection alive through NAT (25 seconds recommended)
+PersistentKeepalive = 25
