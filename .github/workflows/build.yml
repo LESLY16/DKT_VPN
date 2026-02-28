@@ -1,0 +1,5 @@
+if (-not $env:Qt6_DIR) { throw "Qt6_DIR is not set" }
+$qtRoot = (Resolve-Path (Join-Path $env:Qt6_DIR "..\..\..")) .Path
+$windeployqt = Join-Path $qtRoot "bin\windeployqt.exe"
+if (-not (Test-Path $windeployqt)) { throw "windeployqt.exe not found at: $windeployqt (Qt6_DIR=$env:Qt6_DIR)" }
+& $windeployqt "build\Release\DKT_VPN.exe" --release --no-translations
